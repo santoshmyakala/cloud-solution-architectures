@@ -1,0 +1,6 @@
+**/.terraform/
+*.tfstate*
+*.tfvars
+**/.build/
+__pycache__/
+.pytest_cache/

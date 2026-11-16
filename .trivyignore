@@ -1,0 +1,6 @@
+# Accepted findings — each is a deliberate, documented decision.
+
+# AZU-0012: Function deployment storage is not network-restricted.
+# Mitigation: shared-key auth disabled (identity-only access), HTTPS + TLS1.2, no public blob access,
+# it stores only the deployment package. Roadmap: Flex Consumption VNet integration + private endpoint.
+AZU-0012
