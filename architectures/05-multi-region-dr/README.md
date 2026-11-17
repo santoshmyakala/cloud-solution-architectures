@@ -15,21 +15,12 @@
 
 ## Warm standby reference (both clouds)
 
-```mermaid
-flowchart TB
-  users([Users]) --> edge{Global entry<br/>Route 53 failover / Azure Front Door<br/>health probes}
-  edge -->|primary| r1
-  edge -.->|on failure| r2
-  subgraph r1[Region 1 — active]
-    app1[App tier<br/>full capacity] --> db1[(Primary DB<br/>Aurora Global / Azure SQL)]
-  end
-  subgraph r2[Region 2 — warm standby]
-    app2[App tier<br/>scaled down, autoscale ready] --> db2[(Replica<br/>async, RPO ≈ seconds)]
-  end
-  db1 -->|storage-level replication| db2
-  obj1[(Object storage)] -->|cross-region replication| obj2[(Object storage)]
-  runbook[[Failover runbook<br/>automated + game days]] -.-> edge & db2
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/dr-dark.svg">
+  <img alt="Warm-standby DR: users reach a health-probed global entry (Route 53 or Front Door) that routes to the active region and fails over to the standby; primary DB replicates asynchronously to the replica and object storage replicates cross-region; a failover runbook drives promotion." src="diagrams/dr-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 ## What makes DR real
 

@@ -17,18 +17,12 @@ Five reference architectures, each designed **for both AWS and Azure**, so the t
 
 ## How the pieces fit
 
-```mermaid
-flowchart TB
-  gov["01 Landing zone<br/>accounts · subscriptions · guardrails · audit"]
-  net["02 Hub-and-spoke<br/>connectivity · inspection · egress control"]
-  sl["03 Serverless workloads"]
-  k8s["04 Container platform"]
-  dr["05 Multi-region DR"]
-  gov --> net
-  net --> sl & k8s
-  sl & k8s --> dr
-  gov -.->|policies apply to| sl & k8s
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/overview-dark.svg">
+  <img alt="Five reference architectures: 01 landing zone feeds 02 hub-and-spoke networking, which hosts 03 serverless and 04 container platform workloads, both protected by 05 multi-region DR; landing-zone policies apply to every workload." src="docs/diagrams/overview-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="docs/diagrams">docs/diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 ## Service mapping
 

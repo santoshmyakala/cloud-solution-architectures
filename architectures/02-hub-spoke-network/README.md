@@ -6,40 +6,19 @@
 
 ## AWS: Transit Gateway + inspection VPC + AWS Network Firewall
 
-```mermaid
-flowchart LR
-  subgraph spokes[Spoke VPCs — private subnets only]
-    p[prod 10.10.0.0/16]
-    n[nonprod 10.20.0.0/16]
-  end
-  p & n -->|0.0.0.0/0| tgw{{Transit Gateway<br/>spoke RT: 0/0 → inspection<br/>inspection RT: spoke routes}}
-  tgw --> tgwsub[TGW subnets<br/>appliance mode]
-  subgraph insp[Inspection VPC 10.0.0.0/16 — per AZ]
-    tgwsub -->|0/0| fw[Network Firewall endpoint<br/>stateful TLS-SNI allowlist]
-    fw -->|0/0| nat[NAT gateway]
-    nat --> igw[Internet gateway]
-    igw -.->|return: spoke CIDRs → firewall| fw
-  end
-  fw -.->|alerts| cw[(CloudWatch Logs)]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/aws-dark.svg">
+  <img alt="AWS hub-and-spoke: prod and nonprod spoke VPCs route 0/0 through a Transit Gateway into an inspection VPC; Network Firewall allows only listed TLS SNI names via the NAT and internet gateways, drops other domains, and sends alerts to CloudWatch Logs." src="diagrams/aws-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 ## Azure: hub VNet + Azure Firewall Premium
 
-```mermaid
-flowchart LR
-  subgraph spokes[Spoke VNets]
-    p[prod 10.110.0.0/22<br/>UDR 0/0 → firewall<br/>no default outbound]
-    n[nonprod 10.120.0.0/22<br/>UDR 0/0 → firewall]
-  end
-  p <-->|peering| hub
-  n <-->|peering| hub
-  subgraph hub[Hub VNet 10.100.0.0/22]
-    afw[Azure Firewall Premium<br/>zones 1-3 · IDPS deny · TI deny<br/>DNS proxy · FQDN allowlist]
-    gw[GatewaySubnet<br/>reserved for VPN/ER]
-  end
-  afw --> internet((Internet))
-  afw -.->|allLogs| la[(Log Analytics)]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/azure-dark.svg">
+  <img alt="Azure hub-and-spoke: prod and nonprod spoke VNets peer with a hub VNet; UDRs send 0/0 to Azure Firewall Premium, which SNATs allow-listed FQDNs to the internet and sends diagnostics to Log Analytics; direct outbound from spokes is blocked." src="diagrams/azure-light.svg" width="100%">
+</picture>
 
 ## Same pattern, different mechanics
 

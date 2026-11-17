@@ -1,0 +1,49 @@
+- out: aws
+  title: AWS hub-and-spoke with centralised inspection
+  subtitle: Spokes have private subnets only; all egress crosses the Transit Gateway and a stateful Network Firewall (TLS-SNI allowlist)
+  grid: {dx: 215, dy: 155}
+  groups:
+    - {id: spokes, label: Spoke VPCs, sub: private only, icon: amazonwebservices, color: blue, box: [0, 0, 0, 1]}
+    - {id: insp, label: Inspection VPC 10.0.0.0/16, sub: per AZ, icon: shield, color: orange, box: [2, 0, 4, 1]}
+  nodes:
+    - {id: p, label: prod, sub: 10.10.0.0/16, icon: server, at: [0, 0], color: blue, stack: true}
+    - {id: n, label: nonprod, sub: 10.20.0.0/16, icon: server, at: [0, 1], color: blue, stack: true}
+    - {id: tgw, label: Transit Gateway, sub: spoke RT 0/0 → inspection, icon: switch, at: [1, 0.5], color: purple, pulse: true}
+    - {id: tgwsub, label: TGW subnets, sub: appliance mode, icon: gateway, at: [2, 0], color: orange}
+    - {id: fw, label: Network Firewall, sub: stateful · SNI allowlist, icon: firewall, at: [3, 0], color: red, pulse: true}
+    - {id: nat, label: NAT gateway, sub: per AZ, icon: gateway, at: [4, 0], color: orange}
+    - {id: igw, label: Internet gateway, sub: return → firewall, icon: internet, at: [4, 1], color: orange}
+    - {id: cw, label: CloudWatch Logs, sub: alert + flow logs, icon: logs, at: [3, 1], color: teal}
+    - {id: net, label: Approved SaaS, sub: allow-listed domains, icon: internet, at: [5.1, 1], color: green}
+    - {id: bad, label: Other domains, sub: dropped at firewall, icon: bug, at: [5.1, 0], color: red}
+  edges:
+    - {from: p, to: tgw, label: 0.0.0.0/0, kind: data}
+    - {from: n, to: tgw, kind: data}
+    - {from: tgw, to: tgwsub, kind: data}
+    - {from: tgwsub, to: fw, kind: data}
+    - {from: fw, to: nat, label: allowed, kind: data}
+    - {from: nat, to: igw, kind: data}
+    - {from: igw, to: net, label: HTTPS, kind: secure}
+    - {from: fw, to: cw, label: alerts, kind: metrics}
+    - {from: fw, to: bad, label: TLS-SNI not on list, kind: deny, via: [[3, -0.82], [5.1, -0.82]], at: 0.4}
+
+- out: azure
+  title: Azure hub-and-spoke with Azure Firewall Premium
+  subtitle: Spoke UDRs send 0/0 to the firewall; no default outbound access; IDPS and threat intel in deny mode
+  grid: {dx: 235, dy: 155}
+  groups:
+    - {id: spokes, label: Spoke VNets, icon: azure, color: blue, box: [0, 0, 0, 1]}
+    - {id: hub, label: Hub VNet 10.100.0.0/22, icon: switch, color: azure, box: [1.2, 0, 1.2, 1]}
+  nodes:
+    - {id: p, label: prod, sub: 10.110.0.0/22 · UDR 0/0, icon: server, at: [0, 0], color: blue, stack: true}
+    - {id: n, label: nonprod, sub: 10.120.0.0/22 · UDR 0/0, icon: server, at: [0, 1], color: blue, stack: true}
+    - {id: afw, label: Azure Firewall Premium, sub: zones 1-3 · IDPS · FQDN allowlist, icon: firewall, at: [1.2, 0], color: red, pulse: true}
+    - {id: gw, label: GatewaySubnet, sub: reserved for VPN / ER, icon: lock, at: [1.2, 1], color: azure}
+    - {id: inet, label: Internet, sub: allow-listed FQDNs, icon: internet, at: [2.4, 0], color: green}
+    - {id: la, label: Log Analytics, sub: allLogs · resource tables, icon: logs, at: [2.4, 1], color: teal}
+  edges:
+    - {from: p, to: afw, label: peering, kind: data, both: true}
+    - {from: n, to: afw, label: peering, kind: data, both: true, at: 0.4}
+    - {from: afw, to: inet, label: SNAT, kind: secure}
+    - {from: afw, to: la, label: diagnostics, kind: metrics}
+    - {from: p, to: inet, label: no default outbound, kind: deny, via: [[0, -0.82], [2.4, -0.82]], at: 0.5}

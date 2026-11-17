@@ -1,0 +1,26 @@
+- out: dr
+  title: Multi-region disaster recovery — warm standby
+  subtitle: Health-probed global entry; async storage-level replication (RPO ≈ seconds); rehearsed, automated failover runbook
+  grid: {dx: 220, dy: 150}
+  groups:
+    - {id: r1, label: Region 1 — active, icon: region, color: green, box: [2, 0, 4, 0]}
+    - {id: r2, label: Region 2 — warm standby, icon: region, color: amber, box: [2, 2, 4, 2]}
+  nodes:
+    - {id: users, label: Users, sub: global, icon: users, at: [0, 1], color: gray}
+    - {id: edge, label: Global entry, sub: Route 53 / Front Door, icon: dns, at: [1, 1], color: purple, pulse: true}
+    - {id: app1, label: App tier, sub: full capacity, icon: container, at: [2, 0], color: green, stack: true}
+    - {id: db1, label: Primary DB, sub: Aurora Global / Azure SQL, icon: database, at: [3, 0], color: green}
+    - {id: obj1, label: Object storage, sub: versioned, icon: bucket, at: [4, 0], color: green}
+    - {id: app2, label: App tier, sub: scaled down · autoscale ready, icon: container, at: [2, 2], color: amber}
+    - {id: db2, label: Replica DB, sub: async · RPO ≈ seconds, icon: database, at: [3, 2], color: amber}
+    - {id: obj2, label: Object storage, sub: replica, icon: bucket, at: [4, 2], color: amber}
+    - {id: rb, label: Failover runbook, sub: automated + game days, icon: doc, at: [0, 2.1], color: red}
+  edges:
+    - {from: users, to: edge, label: HTTPS, kind: secure}
+    - {from: edge, to: app1, label: primary, kind: data, route: vh}
+    - {from: edge, to: app2, label: on failure, kind: control, route: vh}
+    - {from: app1, to: db1, kind: data, packet: db}
+    - {from: app2, to: db2, kind: data}
+    - {from: db1, to: db2, label: replication, kind: async, packet: db}
+    - {from: obj1, to: obj2, label: CRR / GRS, kind: async, packet: box}
+    - {from: rb, to: edge, label: promote + switch, kind: control, at: 0.45}

@@ -6,19 +6,12 @@
 
 ## AWS: Organizations + SCPs
 
-```mermaid
-flowchart TB
-  root[Organization root<br/><i>SCP: baseline</i>]
-  root --> sec[Security OU<br/>log archive · audit tooling]
-  root --> infra[Infrastructure OU<br/><i>SCP: region restriction</i><br/>networking · shared services]
-  root --> wl[Workloads OU<br/><i>SCP: region restriction</i>]
-  wl --> prod[Prod OU]
-  wl --> np[NonProd OU]
-  root --> sbx[Sandbox OU<br/><i>SCP: region restriction</i>]
-  root --> sus[Suspended OU<br/><i>SCP: deny all</i>]
-  trail[(Organization CloudTrail<br/>multi-region · log-file validation<br/>S3: versioned, KMS, TLS-only)]
-  root -.-> trail
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/aws-dark.svg">
+  <img alt="AWS Organizations: root with baseline SCP; Security, Infrastructure, Workloads (Prod, NonProd), Sandbox and Suspended (deny all) OUs; organisation CloudTrail delivers encrypted logs to a versioned, KMS-encrypted, TLS-only archive bucket." src="diagrams/aws-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 | Guardrail (SCP) | Why |
 |---|---|
@@ -31,21 +24,10 @@ flowchart TB
 
 ## Azure: management groups + Azure Policy (CAF enterprise-scale)
 
-```mermaid
-flowchart TB
-  root[contoso<br/><i>allowed locations · secure storage</i>]
-  root --> plat[Platform]
-  plat --> id[Identity<br/><i>deny public IP</i>]
-  plat --> mgmt[Management<br/>Log Analytics]
-  plat --> conn[Connectivity<br/>hub network]
-  root --> lz[Landing zones<br/><i>required RG tags</i>]
-  lz --> corp[Corp<br/><i>deny public IP</i>]
-  lz --> online[Online<br/>internet-facing allowed]
-  root --> sbx[Sandbox]
-  root --> dec[Decommissioned<br/><i>deny all new resources</i>]
-  la[(Central Log Analytics<br/>activity log: Administrative,<br/>Security, Policy, Alert)]
-  mgmt -.-> la
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/azure-dark.svg">
+  <img alt="Azure management-group hierarchy under the tenant root: contoso with Sandbox and Decommissioned (deny all), Platform (Identity, Management, Connectivity) and Landing zones (Corp, Online); Management sends activity logs to central Log Analytics." src="diagrams/azure-light.svg" width="100%">
+</picture>
 
 | Guardrail (custom policy, effect = deny) | Scope |
 |---|---|

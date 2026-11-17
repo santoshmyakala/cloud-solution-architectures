@@ -1,0 +1,18 @@
+- out: overview
+  title: Five reference architectures — one platform story
+  subtitle: Each layer builds on the one before it; landing-zone guardrails apply to every workload · AWS and Azure for each
+  grid: {dx: 235, dy: 150}
+  nodes:
+    - {id: gov, label: 01 Landing zone, sub: accounts · guardrails · audit, icon: [amazonwebservices, azure], at: [0, 0.5], color: purple}
+    - {id: net, label: 02 Hub-and-spoke, sub: inspection · egress control, icon: firewall, at: [1, 0.5], color: orange}
+    - {id: sl, label: 03 Serverless, sub: API · queue · functions · NoSQL, icon: function, at: [2, 0], color: blue}
+    - {id: k8s, label: 04 Container platform, sub: EKS / AKS · GitOps, icon: kubernetes, at: [2, 1], color: blue}
+    - {id: dr, label: 05 Multi-region DR, sub: warm standby · failover, icon: backup, at: [3, 0.5], color: green, pulse: true}
+  edges:
+    - {from: gov, to: net, kind: data}
+    - {from: net, to: sl, kind: data}
+    - {from: net, to: k8s, kind: data}
+    - {from: sl, to: dr, kind: data}
+    - {from: k8s, to: dr, kind: data}
+    - {from: gov, to: sl, label: policies apply, kind: control, via: [[0, -0.55], [2, -0.55]]}
+    - {from: gov, to: k8s, kind: control, via: [[0, 1.55], [2, 1.55]]}

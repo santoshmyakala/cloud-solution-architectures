@@ -1,0 +1,51 @@
+- out: aws
+  title: AWS serverless order pipeline
+  subtitle: Accept fast (202), process asynchronously, idempotent writes, poison messages to a DLQ with an alarm
+  grid: {dx: 220, dy: 165}
+  groups:
+    - {id: acct, label: AWS account, icon: amazonwebservices, color: orange, box: [1, 0, 5, 1]}
+  nodes:
+    - {id: c, label: Client, sub: SigV4 (IAM auth), icon: user, at: [0, 0], color: gray}
+    - {id: api, label: API Gateway, sub: HTTP API · throttled, icon: api, at: [1, 0], color: purple}
+    - {id: ing, label: "λ ingest", sub: validate → 202, icon: function, at: [2, 0], color: orange}
+    - {id: q, label: SQS orders, sub: SSE, icon: queue, at: [3, 0], color: amber, pulse: true}
+    - {id: dlq, label: SQS DLQ, sub: 14 days, icon: queue, at: [4, 0], color: red}
+    - {id: alarm, label: CloudWatch alarm, sub: DLQ depth > 0, icon: alert, at: [5, 0], color: red}
+    - {id: proc, label: "λ processor", sub: batch 10 · partial failures, icon: function, at: [3, 1], color: orange}
+    - {id: ddb, label: DynamoDB, sub: on-demand · PITR, icon: database, at: [4, 1], color: blue}
+    - {id: xr, label: X-Ray + logs, sub: traces · JSON logs, icon: eye, at: [2, 1], color: teal}
+  edges:
+    - {from: c, to: api, label: POST /orders, kind: secure}
+    - {from: api, to: ing, kind: data}
+    - {from: ing, to: q, label: SendMessage, kind: async, packet: doc}
+    - {from: q, to: proc, label: batch, kind: async, packet: doc}
+    - {from: proc, to: ddb, label: conditional put, kind: data, packet: db}
+    - {from: q, to: dlq, label: after 5 receives, kind: deny}
+    - {from: dlq, to: alarm, kind: metrics}
+    - {from: ing, to: xr, kind: metrics}
+    - {from: proc, to: xr, kind: metrics}
+
+- out: azure
+  title: Azure serverless order pipeline
+  subtitle: Managed identities end to end — no keys or connection strings; Service Bus local auth off, Cosmos DB keys disabled
+  grid: {dx: 230, dy: 165}
+  groups:
+    - {id: sub, label: Azure subscription, icon: azure, color: azure, box: [1, 0, 4, 1]}
+  nodes:
+    - {id: c, label: Client, sub: function key / Entra ID, icon: user, at: [0, 0], color: gray}
+    - {id: ing, label: Function ingest, sub: Flex Consumption, icon: function, at: [1, 0], color: azure}
+    - {id: q, label: Service Bus queue, sub: local auth off, icon: queue, at: [2, 0], color: amber, pulse: true}
+    - {id: dlq, label: Dead-letter queue, sub: after 5 deliveries, icon: queue, at: [3, 0], color: red}
+    - {id: alert, label: Azure Monitor alert, sub: DLQ count > 0, icon: alert, at: [4, 0], color: red}
+    - {id: proc, label: Function processor, sub: managed identity, icon: function, at: [2, 1], color: azure}
+    - {id: cos, label: Cosmos DB, sub: serverless · keys disabled, icon: cosmosdb, at: [3, 1], color: blue}
+    - {id: ai, label: Application Insights, sub: Entra ID auth, icon: eye, at: [1, 1], color: teal}
+  edges:
+    - {from: c, to: ing, label: POST /api/orders, kind: secure}
+    - {from: ing, to: q, label: MI · Data Sender, kind: async, packet: doc}
+    - {from: q, to: proc, label: MI · Data Receiver, kind: async, packet: doc}
+    - {from: proc, to: cos, label: MI · scoped RBAC, kind: secure, packet: db}
+    - {from: q, to: dlq, kind: deny}
+    - {from: dlq, to: alert, kind: metrics}
+    - {from: ing, to: ai, kind: metrics}
+    - {from: proc, to: ai, kind: metrics}

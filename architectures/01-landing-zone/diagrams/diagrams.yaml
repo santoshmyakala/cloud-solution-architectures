@@ -1,0 +1,57 @@
+- out: aws
+  title: AWS landing zone — AWS Organizations
+  subtitle: SCPs on the root and every OU; organisation-wide CloudTrail into a locked-down log bucket
+  grid: {dx: 215, dy: 155}
+  groups:
+    - {id: org, label: AWS Organizations, icon: amazonwebservices, color: orange, box: [0, 0, 4, 2], pad: 6}
+  nodes:
+    - {id: root, label: Organization root, sub: "SCP: baseline", icon: cluster, at: [2, 0], color: orange, pulse: true}
+    - {id: trail, label: Org CloudTrail, sub: multi-region · validated, icon: logs, at: [0, 0], color: teal}
+    - {id: s3, label: Log archive bucket, sub: versioned · KMS · TLS-only, icon: bucket, at: [4, 0], color: teal}
+    - {id: sec, label: Security OU, sub: log archive · audit, icon: shield, at: [0, 1], color: green}
+    - {id: infra, label: Infrastructure OU, sub: "SCP: region restriction", icon: switch, at: [1, 1], color: blue}
+    - {id: wl, label: Workloads OU, sub: "SCP: region restriction", icon: container, at: [2, 1], color: blue}
+    - {id: sbx, label: Sandbox OU, sub: "SCP: region restriction", icon: terminal, at: [3, 1], color: gray}
+    - {id: sus, label: Suspended OU, sub: "SCP: deny all", icon: deny, at: [4, 1], color: red}
+    - {id: prod, label: Prod OU, sub: production accounts, icon: server, at: [1.5, 2], color: blue}
+    - {id: np, label: NonProd OU, sub: dev / test accounts, icon: server, at: [2.5, 2], color: blue}
+  edges:
+    - {from: root, to: sec, kind: control, route: vhv}
+    - {from: root, to: infra, kind: control, route: vhv}
+    - {from: root, to: wl, kind: control}
+    - {from: root, to: sbx, kind: control, route: vhv}
+    - {from: root, to: sus, kind: control, route: vhv}
+    - {from: wl, to: prod, kind: control, route: vhv}
+    - {from: wl, to: np, kind: control, route: vhv}
+    - {from: root, to: trail, label: all accounts, kind: metrics}
+    - {from: trail, to: s3, label: encrypted delivery, kind: secure, via: [[0, -0.82], [4, -0.82]]}
+
+- out: azure
+  title: Azure landing zone — management-group hierarchy
+  subtitle: Policy assignments inherited down the tree; activity logs from every subscription to central Log Analytics
+  grid: {dx: 205, dy: 150}
+  groups:
+    - {id: tenant, label: Entra ID tenant root, icon: azure, color: azure, box: [0, 0, 4, 2], pad: 6}
+  nodes:
+    - {id: root, label: contoso, sub: allowed locations · secure storage, icon: cluster, at: [2.5, 0], color: azure, pulse: true}
+    - {id: sbx, label: Sandbox, sub: experiments, icon: terminal, at: [1, 0], color: gray}
+    - {id: dec, label: Decommissioned, sub: deny all new resources, icon: deny, at: [4, 0], color: red}
+    - {id: plat, label: Platform, sub: shared services, icon: gear, at: [1, 1], color: purple}
+    - {id: lz, label: Landing zones, sub: required RG tags, icon: container, at: [3.5, 1], color: blue}
+    - {id: id, label: Identity, sub: deny public IP, icon: key, at: [0, 2], color: purple}
+    - {id: mgmt, label: Management, sub: Log Analytics, icon: chart, at: [1, 2], color: purple}
+    - {id: conn, label: Connectivity, sub: hub network, icon: switch, at: [2, 2], color: purple}
+    - {id: corp, label: Corp, sub: deny public IP, icon: lock, at: [3, 2], color: blue}
+    - {id: online, label: Online, sub: internet-facing allowed, icon: internet, at: [4, 2], color: blue}
+    - {id: la, label: Central Log Analytics, sub: Admin · Security · Policy · Alert, icon: logs, at: [5.35, 1], color: teal}
+  edges:
+    - {from: root, to: sbx, kind: control}
+    - {from: root, to: dec, kind: control}
+    - {from: root, to: plat, kind: control, route: vhv}
+    - {from: root, to: lz, kind: control, route: vhv}
+    - {from: plat, to: id, kind: control, route: vhv}
+    - {from: plat, to: mgmt, kind: control}
+    - {from: plat, to: conn, kind: control, route: vhv}
+    - {from: lz, to: corp, kind: control, route: vhv}
+    - {from: lz, to: online, kind: control, route: vhv}
+    - {from: mgmt, to: la, label: activity logs, kind: metrics, via: [[1, 2.72], [5.35, 2.72]], at: 0.6}

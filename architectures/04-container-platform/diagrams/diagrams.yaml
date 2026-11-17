@@ -1,0 +1,31 @@
+- out: platform
+  title: Container platform on EKS / AKS
+  subtitle: Signed images only, GitOps delivery, tenant isolation, workload identity instead of static keys
+  grid: {dx: 225, dy: 160}
+  groups:
+    - {id: cluster, label: EKS / AKS, sub: private API endpoint, icon: kubernetes, color: blue, box: [2, 1, 4, 2]}
+  nodes:
+    - {id: repo, label: Team repo, sub: app + Helm chart, icon: github, at: [0, 0], color: gray}
+    - {id: ci, label: Secure CI, sub: scan · SBOM · sign, icon: [githubactions, signature], at: [1, 0], color: green}
+    - {id: reg, label: Registry, sub: ECR / ACR / GHCR, icon: registry, at: [3, 0], color: purple}
+    - {id: gitops, label: GitOps repo, sub: env values · digests, icon: git, at: [1, 1], color: orange}
+    - {id: argo, label: Argo CD, sub: sync, icon: argocd, at: [2, 1], color: orange}
+    - {id: ns, label: Team namespaces, sub: quotas · NetworkPolicies, icon: container, at: [3, 1], color: blue}
+    - {id: pods, label: Workloads, sub: HPA · PDB · probes, icon: container, at: [4, 1], color: blue, stack: true, badge: HPA}
+    - {id: kyv, label: Kyverno, sub: signature + pod security, icon: shield, at: [3, 2], color: green, pulse: true}
+    - {id: obs, label: Observability, sub: metrics · logs · traces, icon: [prometheus, grafana, loki], at: [4, 2], color: teal}
+    - {id: sec, label: Runtime security, sub: Falco · Defender · GuardDuty, icon: falco, at: [2, 2], color: red}
+    - {id: cloud, label: Cloud services, sub: no static keys, icon: [amazonwebservices, azure], at: [5.2, 1], color: gray}
+    - {id: karp, label: Node provisioning, sub: Karpenter / NAP, icon: gear, at: [5.2, 2], color: purple}
+  edges:
+    - {from: repo, to: ci, kind: data}
+    - {from: ci, to: reg, label: signed image, kind: secure, packet: box}
+    - {from: ci, to: gitops, label: digest, kind: data}
+    - {from: gitops, to: argo, kind: control}
+    - {from: argo, to: ns, kind: control}
+    - {from: ns, to: pods, kind: data}
+    - {from: reg, to: pods, label: pull by digest, kind: data, route: hv, packet: box}
+    - {from: kyv, to: ns, label: admit, kind: secure}
+    - {from: pods, to: obs, kind: metrics}
+    - {from: pods, to: cloud, label: workload identity, kind: secure}
+    - {from: karp, to: cluster, label: nodes, kind: control}

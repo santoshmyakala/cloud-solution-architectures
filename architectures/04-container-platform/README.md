@@ -4,24 +4,12 @@
 
 > **Reference architecture** (design level). The delivery and admission-control parts are implemented and tested in [devsecops-gitops-pipeline](https://github.com/santoshmyakala/devsecops-gitops-pipeline); the workload is [wine-quality-mlops](https://github.com/santoshmyakala/wine-quality-mlops).
 
-```mermaid
-flowchart TB
-  dev([Team repo]) --> ci[CI + secure-container workflow<br/>scan · SBOM · sign]
-  ci --> reg[(Registry<br/>ECR / ACR / GHCR)]
-  ci --> gitops[(GitOps repo<br/>env values · digests)]
-  gitops --> argo[Argo CD]
-  subgraph cluster[EKS / AKS — private API endpoint]
-    direction TB
-    argo --> ns[Team namespaces<br/>quotas · NetworkPolicies]
-    adm{{Kyverno<br/>signature + pod security}} --> ns
-    ns --> pods[Workloads<br/>HPA · PDB · probes]
-    obs[Prometheus · Grafana · Loki<br/>OpenTelemetry collector]
-    sec[Runtime: Falco / Defender<br/>for Containers / GuardDuty EKS]
-  end
-  reg --> pods
-  pods -->|workload identity| cloud[(Cloud services<br/>no static keys)]
-  karp[Karpenter / AKS node<br/>auto-provisioning] --> cluster
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/platform-dark.svg">
+  <img alt="Container platform: team repo builds through secure CI that pushes signed images to a registry and digests to a GitOps repo; Argo CD syncs team namespaces in a private EKS or AKS cluster; Kyverno admits only signed, compliant pods; workloads use workload identity for cloud services; Prometheus, Grafana, Loki and OpenTelemetry for observability; Falco or cloud runtime security; Karpenter or NAP provisions nodes." src="diagrams/platform-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 ## Building blocks
 

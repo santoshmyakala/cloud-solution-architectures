@@ -6,30 +6,19 @@
 
 ## AWS
 
-```mermaid
-flowchart LR
-  c([Client]) -->|POST /orders<br/>IAM auth · throttled| api[API Gateway<br/>HTTP API]
-  api --> ing[Lambda: ingest<br/>validate → 202]
-  ing -->|SendMessage only| q[[SQS orders<br/>SSE]]
-  q -->|batch 10<br/>partial failures| proc[Lambda: processor]
-  proc -->|PutItem<br/>attribute_not_exists| ddb[(DynamoDB<br/>on-demand · PITR)]
-  q -->|after 5 receives| dlq[[SQS DLQ<br/>14 days]]
-  dlq -.-> alarm[CloudWatch alarm]
-  ing & proc -.-> xr[X-Ray · JSON logs]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/aws-dark.svg">
+  <img alt="AWS serverless: client calls API Gateway with IAM auth, ingest Lambda validates and enqueues to SQS, processor Lambda consumes batches and writes conditionally to DynamoDB; after five receives messages go to a DLQ with a CloudWatch alarm; X-Ray and JSON logs for both functions." src="diagrams/aws-light.svg" width="100%">
+</picture>
+
+<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
 
 ## Azure
 
-```mermaid
-flowchart LR
-  c([Client]) -->|POST /api/orders<br/>function key / Entra ID| ing[Function: ingest<br/>Flex Consumption]
-  ing -->|managed identity<br/>Data Sender| q[[Service Bus queue<br/>local auth off]]
-  q -->|managed identity<br/>Data Receiver| proc[Function: processor]
-  proc -->|managed identity<br/>container-scoped RBAC| cos[(Cosmos DB serverless<br/>keys disabled · continuous backup)]
-  q -->|after 5 deliveries| dlq[[Dead-letter sub-queue]]
-  dlq -.-> alert[Azure Monitor alert]
-  ing & proc -.-> ai[Application Insights<br/>Entra ID auth]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/azure-dark.svg">
+  <img alt="Azure serverless: client calls the ingest Function, which sends to a Service Bus queue with managed identity; the processor Function writes to Cosmos DB with scoped RBAC; after five deliveries messages dead-letter and an Azure Monitor alert fires; both functions report to Application Insights." src="diagrams/azure-light.svg" width="100%">
+</picture>
 
 ## Decisions
 
