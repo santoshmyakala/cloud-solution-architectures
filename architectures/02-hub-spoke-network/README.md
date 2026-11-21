@@ -11,8 +11,6 @@
   <img alt="AWS hub-and-spoke: prod and nonprod spoke VPCs route 0/0 through a Transit Gateway into an inspection VPC; Network Firewall allows only listed TLS SNI names via the NAT and internet gateways, drops other domains, and sends alerts to CloudWatch Logs." src="diagrams/aws-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 ## Azure: hub VNet + Azure Firewall Premium
 
 <picture>

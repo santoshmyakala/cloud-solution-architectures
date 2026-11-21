@@ -11,8 +11,6 @@
   <img alt="AWS Organizations: root with baseline SCP; Security, Infrastructure, Workloads (Prod, NonProd), Sandbox and Suspended (deny all) OUs; organisation CloudTrail delivers encrypted logs to a versioned, KMS-encrypted, TLS-only archive bucket." src="diagrams/aws-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 | Guardrail (SCP) | Why |
 |---|---|
 | Deny `organizations:LeaveOrganization` | Accounts can't escape governance |

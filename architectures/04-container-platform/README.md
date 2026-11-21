@@ -9,8 +9,6 @@
   <img alt="Container platform: team repo builds through secure CI that pushes signed images to a registry and digests to a GitOps repo; Argo CD syncs team namespaces in a private EKS or AKS cluster; Kyverno admits only signed, compliant pods; workloads use workload identity for cloud services; Prometheus, Grafana, Loki and OpenTelemetry for observability; Falco or cloud runtime security; Karpenter or NAP provisions nodes." src="diagrams/platform-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 ## Building blocks
 
 | Capability | AWS (EKS) | Azure (AKS) |

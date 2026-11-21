@@ -11,8 +11,6 @@
   <img alt="AWS serverless: client calls API Gateway with IAM auth, ingest Lambda validates and enqueues to SQS, processor Lambda consumes batches and writes conditionally to DynamoDB; after five receives messages go to a DLQ with a CloudWatch alarm; X-Ray and JSON logs for both functions." src="diagrams/aws-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 ## Azure
 
 <picture>

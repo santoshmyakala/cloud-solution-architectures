@@ -22,8 +22,6 @@ Five reference architectures, each designed **for both AWS and Azure**, so the t
   <img alt="Five reference architectures: 01 landing zone feeds 02 hub-and-spoke networking, which hosts 03 serverless and 04 container platform workloads, both protected by 05 multi-region DR; landing-zone policies apply to every workload." src="docs/diagrams/overview-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="docs/diagrams">docs/diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 ## Service mapping
 
 | Capability | AWS | Azure |

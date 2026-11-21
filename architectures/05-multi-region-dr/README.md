@@ -20,8 +20,6 @@
   <img alt="Warm-standby DR: users reach a health-probed global entry (Route 53 or Front Door) that routes to the active region and fails over to the standby; primary DB replicates asynchronously to the replica and object storage replicates cross-region; a failover runbook drives promotion." src="diagrams/dr-light.svg" width="100%">
 </picture>
 
-<sub>Animated diagram generated from <a href="diagrams">diagrams/*.yaml</a> with <a href="https://github.com/santoshmyakala/santoshmyakala/tree/main/tools/archdiagram">archdiagram</a>.</sub>
-
 ## What makes DR real
 
 1. **Failover is automated and rehearsed:** quarterly game days with AWS Fault Injection Service or Azure Chaos Studio, and RTO/RPO measured rather than assumed.
